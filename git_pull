@@ -1,0 +1,64 @@
+#! /usr/bin/env bash
+
+working_dir = "<working dir> "
+
+list=$(cd ~/"$working_dir"; ls)	
+for t in $list; do
+
+	cd ~/"${working_dir}/$t"
+
+	is_git="$(git rev-parse --is-inside-work-tree)"
+	echo "On $t"
+
+	if [ "$is_git" ]
+	then
+		my_branch=$(git symbolic-ref --short -q HEAD)
+		branch="master"
+	
+		exception_branch = "<exception_branch"
+		if [ "$t" = "$exception_branch" ] 
+		then
+			branch="<other_name>"
+		fi
+
+		cd ~/"${working_dir}/$t"
+		git checkout $branch
+		
+		if [ $? -ne 0 ]
+		then
+			git stash
+			git checkout $branch
+			git pull
+			git checkout $my_branch
+			git stash apply
+		else
+			git pull
+		fi
+
+		ret_code=$?
+		choice="N"
+	
+		if [ $ret_code -ne 0 ]
+		then
+			read -p "There are unstashed changes. Do you want to stash and pull (Y/N) ?" choice
+			if [ $choice == "Y" ]
+			then
+				git stash
+				git pull
+			else
+				echo "Unstaged changes. Unable to pull from $t $branch"
+			fi
+		fi
+
+		if [ "$my_branch" != "$branch" ]
+		then
+			git checkout $my_branch
+		fi
+
+	else
+		echo "Skipping $t, not a git repository."
+	fi
+
+	echo
+done
+
