@@ -7,5 +7,5 @@ Type `./git_pull` in terminal
 ## Configuration
 Replace the following:
 
-`<working_dir>` with the path of your working directoruy having all your projects, eg. `~/Aseed/AllProjects`
+`<working_dir>` with the path of your working directory having all your projects, eg. `~/Aseed/AllProjects`
 `<exception_branch>` if you have a repository that syncs with some other branch instead of master
